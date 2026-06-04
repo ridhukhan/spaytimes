@@ -63,6 +63,7 @@ export default function BlogPost({ post }) {
           fontSize: "18px",
           lineHeight: "1.6",
           color: "#fff",
+          backgroundColor: "#000",
         }}
       >
         {post.body ? (
