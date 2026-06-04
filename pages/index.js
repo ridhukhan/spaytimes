@@ -15,7 +15,33 @@ export async function getStaticProps() {
 export default function Home({ posts }) {
   return (
     <div style={{ padding: "40px", fontFamily: "sans-serif" }}>
-      <h1>আমার ব্লগ ওয়েবসাইট </h1>
+      <h1
+        style={{
+          fontSize: "3rem",
+          fontWeight: "800",
+          letterSpacing: "4px",
+          margin: "0 0 10px 0",
+          background: "linear-gradient(to right, #38bdf8, #c084fc)", // নিয়ন ব্লু ও পার্পল গ্রেডিয়েন্ট টেক্সট
+          WebkitBackgroundClip: "text",
+          WebkitTextFillColor: "transparent",
+          textTransform: "uppercase",
+        }}
+      >
+        SPAY TIMES
+      </h1>
+      <p
+        style={{
+          fontSize: "1.2rem",
+          color: "#94a3b8",
+          letterSpacing: "2px",
+          margin: "0 0 20px 0",
+          fontWeight: "400",
+          textTransform: "lowercase",
+          animationDelay: "0.3s",
+        }}
+      >
+        multiflavor news
+      </p>
       <hr />
 
       <div style={{ marginTop: "20px" }}>
