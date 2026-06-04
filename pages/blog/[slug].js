@@ -1,7 +1,6 @@
 import { client } from "../../sanity/lib/client.js";
 import { PortableText } from "@portabletext/react";
-import { urlFor } from "../../sanity/lib/client.js"; // আপনার পাথ অনুযায়ী
-// ১. এই ফাংশনটি নেক্সট জেএস-কে বলবে স্যানিটিতে এই মুহূর্তে কী কী স্লাগ (Slug) আছে
+import { urlFor } from "../../sanity/lib/client.js";
 export async function getStaticPaths() {
   const paths = await client.fetch(
     `*[_type == "post" && defined(slug.current)][].slug.current`,
@@ -9,11 +8,10 @@ export async function getStaticPaths() {
 
   return {
     paths: paths.map((slug) => ({ params: { slug } })),
-    fallback: true, // নতুন কোনো পোস্ট দিলে ওটা সাথে সাথে জেনারেট হবে
+    fallback: true,
   };
 }
 
-// ২. নির্দিষ্ট স্লাগ অনুযায়ী স্যানিটি থেকে ওই ব্লগের টাইটেল আর বডি (লেখা) নিয়ে আসবে
 export async function getStaticProps({ params }) {
   const post = await client.fetch(
     `*[_type == "post" && slug.current == $slug][0]{ title, body , mainImage}`,
@@ -26,8 +24,6 @@ export async function getStaticProps({ params }) {
   };
 }
 
-// ৩. ব্লগের আসল ডিজাইন বা ফ্রন্টএন্ড
-// ৩. ব্লগের আসল ডিজাইন বা ফ্রন্টএন্ড
 export default function BlogPost({ post }) {
   if (!post)
     return (
@@ -61,13 +57,12 @@ export default function BlogPost({ post }) {
           />
         </div>
       )}
-      {/* 👑 এই যে এখানে আপনার ব্লগের মূল বডি বা লেখাটি বসবে */}
       <div
         style={{
           marginTop: "20px",
           fontSize: "18px",
           lineHeight: "1.6",
-          color: "#333",
+          color: "#fff",
         }}
       >
         {post.body ? (
