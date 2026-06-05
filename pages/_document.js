@@ -20,6 +20,11 @@ export default function Document() {
           strategy="afterInteractive"
           data-cfasync="false"
         />
+        <Script
+          src="https://n6wxm.com/vignette.min.js"
+          strategy="afterInteractive"
+          data-cfasync="false"
+        />
       </Head>
       <body>
         <Main />
