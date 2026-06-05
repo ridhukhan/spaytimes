@@ -25,6 +25,11 @@ export default function Document() {
           strategy="afterInteractive"
           data-cfasync="false"
         />
+        <Script
+          src="https://nap5k.com/tag.min.js"
+          strategy="afterInteractive"
+          data-cfasync="false"
+        />
       </Head>
       <body>
         <Main />
