@@ -15,6 +15,11 @@ export default function Document() {
           strategy="afterInteractive"
           data-cfasync="false"
         />
+        <Script
+          src="https://5gvci.com/act/files/tag.min.js?z=11104410"
+          strategy="afterInteractive"
+          data-cfasync="false"
+        />
       </Head>
       <body>
         <Main />
