@@ -5,7 +5,10 @@ export default function Document() {
   return (
     <Html lang="en">
       <Head>
-        <meta name="google-site-verification" content="1e468d0933fe3e86" />
+        <meta
+          name="google-site-verification"
+          content="YKV5isgDqhu4dkETERczQhgtmDNNuQDOgnulgr_Jlf8"
+        />
       </Head>
 
       <body>
