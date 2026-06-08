@@ -2,6 +2,15 @@ import clientPromise from "@/lib/mongodb";
 import Link from "next/link";
 
 export default function NewsIndex({ allNews }) {
+  // 🎯 সেফটি চেক: যদি ডাটাবেজ থেকে কোনো কারণে অ্যারে না আসে
+  if (!allNews || allNews.length === 0) {
+    return (
+      <h2 style={{ color: "#fff", textAlign: "center", marginTop: "50px" }}>
+        কোনো খবর পাওয়া যায়নি!
+      </h2>
+    );
+  }
+
   return (
     <div
       style={{
@@ -19,8 +28,9 @@ export default function NewsIndex({ allNews }) {
 
       <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
         {allNews.map((news) => {
-          // HTML ট্যাগ রিমুভ করে পিওর টেক্সট থেকে ১৬০ অক্ষর কাটার লজিক
-          const pureText = news.description.replace(/<[^>]*>/g, "");
+          // 🎯 সেফটি: ডেসক্রিপশন খালি থাকলে ক্র্যাশ ঠেকানোর লজিক
+          const descriptionText = news.description || "";
+          const pureText = descriptionText.replace(/<[^>]*>/g, "");
           const shortDescription =
             pureText.length > 160
               ? pureText.substring(0, 160) + "..."
@@ -38,7 +48,8 @@ export default function NewsIndex({ allNews }) {
                 alignItems: "center",
               }}
             >
-              {news.image && (
+              {/* 🎯 ইমেজ ফিল্ড ফাঁকা স্ট্রিং ("") হলে যেন এরর না দেয় */}
+              {news.image && news.image.trim() !== "" && (
                 <img
                   src={news.image}
                   alt="news"
@@ -52,7 +63,9 @@ export default function NewsIndex({ allNews }) {
               )}
               <div>
                 <div
-                  dangerouslySetInnerHTML={{ __html: news.title }}
+                  dangerouslySetInnerHTML={{
+                    __html: news.title || "শিরোনামহীন",
+                  }}
                   style={{
                     fontSize: "22px",
                     fontWeight: "bold",
@@ -68,16 +81,18 @@ export default function NewsIndex({ allNews }) {
                 >
                   {shortDescription}
                 </p>
-                <Link
-                  href={`/news/${news.url}`}
-                  style={{
-                    color: "#ff4d4d",
-                    fontWeight: "bold",
-                    textDecoration: "none",
-                  }}
-                >
-                  আরও পড়ুন ➔
-                </Link>
+                {news.url && (
+                  <Link
+                    href={`/news/${news.url}`}
+                    style={{
+                      color: "#ff4d4d",
+                      fontWeight: "bold",
+                      textDecoration: "none",
+                    }}
+                  >
+                    আরও পড়ুন ➔
+                  </Link>
+                )}
               </div>
             </div>
           );
@@ -88,18 +103,28 @@ export default function NewsIndex({ allNews }) {
 }
 
 export async function getStaticProps() {
-  const client = await clientPromise;
-  const db = client.db("news");
-  const allNews = await db
-    .collection("posts")
-    .find({})
-    .sort({ _id: -1 })
-    .toArray();
+  try {
+    const client = await clientPromise;
+    const db = client.db("news");
 
-  return {
-    props: {
-      allNews: JSON.parse(JSON.stringify(allNews)),
-    },
-    revalidate: 10, // 🎯 প্রতি ১০ সেকেন্ড পর পর পেজটি ব্যাকগ্রাউন্ডে অটো আপডেট হবে
-  };
+    // 🎯 আপনার দেওয়া কালেকশন নেম 'news1' নিশ্চিত করা হলো
+    const allNews = await db
+      .collection("news1")
+      .find({})
+      .sort({ _id: -1 })
+      .toArray();
+
+    return {
+      props: {
+        allNews: JSON.parse(JSON.stringify(allNews)),
+      },
+      revalidate: 10,
+    };
+  } catch (error) {
+    // 🎯 যদি ডাটাবেজ কানেকশনে কোনো ঝামেলা হয়, তবে ফাঁকা অ্যারে পাস করবে যাতে সাইট ক্র্যাশ না করে
+    return {
+      props: { allNews: [] },
+      revalidate: 10,
+    };
+  }
 }

@@ -31,17 +31,24 @@ export default function Dashboard() {
     e.preventDefault();
     setLoading(true);
 
+    // 🎯 ম্যাজিক ট্রিক: খালি ইনপুটগুলো ডাটাবেজে পাঠানোর আগেই ছেঁকে ফেলে দেওয়া হচ্ছে
+    const cleanedData = { ...formData };
+    Object.keys(cleanedData).forEach((key) => {
+      if (cleanedData[key] === "" || cleanedData[key] === null) {
+        delete cleanedData[key]; // খালি থাকলে ওই ফিল্ডটা ডাটাবেজেই যাবে না!
+      }
+    });
+
     try {
-      const res = await fetch("/api/post", {
+      const res = await fetch("/api/posts", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(cleanedData), // 🎯 এখানে cleanedData পাঠানো হচ্ছে
       });
       const data = await res.json();
 
       if (data.success) {
         alert("🎉 খবর একদম লাইভ হয়ে গেছে ভাই!");
-        // ফর্ম ক্লিয়ার করার লজিক
         setFormData({
           title: "",
           image: "",
@@ -71,7 +78,6 @@ export default function Dashboard() {
       setLoading(false);
     }
   };
-
   return (
     <div
       style={{
