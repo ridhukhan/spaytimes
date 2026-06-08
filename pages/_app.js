@@ -110,6 +110,19 @@ export default function App({ Component, pageProps }) {
               Blog
             </a>
             <a
+              href="/news"
+              onClick={() => setClicked(false)}
+              style={{
+                fontSize: "28px",
+                color: "#fff",
+                textDecoration: "none",
+                fontWeight: "600",
+                letterSpacing: "1px",
+              }}
+            >
+              news
+            </a>
+            <a
               href="/about"
               onClick={() => setClicked(false)}
               style={{
