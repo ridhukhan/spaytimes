@@ -1,17 +1,17 @@
 import { useState } from "react";
-import router from "next/router"; // 🎯 ডাবল ইম্পোর্ট এবং Router এর ক্যাপিটাল R এর ঝামেলা দূর করা হলো
+import { useRouter } from "next/router";
 
 export default function AdminLogin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const router = useRouter(); // ✅ hook হিসেবে call করো
 
   const handlesubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      // 🎯 এপিআই ইউআরএল একদম নিখুঁত করা হলো
       const res = await fetch("/api/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -26,9 +26,8 @@ export default function AdminLogin() {
         alert(data.message || "Something went wrong");
       }
     } catch (err) {
-      alert("সার্ভারে সমস্যা হয়েছে!");
+      alert("সার্ভারে সমস্যা হয়েছে!");
     } finally {
-      // 🎯 এখন try-catch এর সাথে finally একদম পারফেক্টলি কাজ করবে!
       setLoading(false);
     }
   };
@@ -41,7 +40,7 @@ export default function AdminLogin() {
         justifyContent: "center",
         alignItems: "center",
         backgroundColor: "#111",
-        flexDirection: "column", // 🎯 যাতে টাইটেলটি ফর্মের উপরে সুন্দরভাবে বসে
+        flexDirection: "column",
         gap: "20px",
       }}
     >
