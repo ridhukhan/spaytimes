@@ -40,38 +40,52 @@ export default function NewsIndex({ allNews }) {
             <div
               key={news._id}
               style={{
-                display: "flex",
-                gap: "20px",
-                background: "#1a1a1a",
-                padding: "15px",
-                borderRadius: "8px",
-                alignItems: "center",
+                marginBottom: "30px",
+                background: "#1e293b",
+                padding: "20px",
+                borderRadius: "12px",
+                boxShadow: "0 4px 15px rgba(0,0,0,0.2)",
               }}
             >
-              {/* 🎯 ইমেজ ফিল্ড ফাঁকা স্ট্রিং ("") হলে যেন এরর না দেয় */}
-              {news.image && news.image.trim() !== "" && (
-                <img
-                  src={news.image}
-                  alt="news"
-                  style={{
-                    width: "220px",
-                    height: "130px",
-                    objectFit: "cover",
-                    borderRadius: "6px",
-                  }}
-                />
-              )}
+              <Link
+                href={`/news/${news.url}`}
+                style={{
+                  textDecoration: "none",
+                }}
+              >
+                {/* 🎯 ইমেজ ফিল্ড ফাঁকা স্ট্রিং ("") হলে যেন এরর না দেয় */}
+                {news.image && news.image.trim() !== "" && (
+                  <img
+                    src={news.image}
+                    alt="news"
+                    style={{
+                      width: "100%",
+                      maxHeight: "400px",
+                      objectFit: "cover",
+                      borderRadius: "8px",
+                      marginBottom: "15px",
+                    }}
+                  />
+                )}
+              </Link>
               <div>
-                <div
-                  dangerouslySetInnerHTML={{
-                    __html: news.title || "শিরোনামহীন",
-                  }}
+                <Link
+                  href={`/news/${news.url}`}
                   style={{
-                    fontSize: "22px",
-                    fontWeight: "bold",
-                    marginBottom: "8px",
+                    textDecoration: "none",
                   }}
-                />
+                >
+                  <div
+                    dangerouslySetInnerHTML={{
+                      __html: news.title || "শিরোনামহীন",
+                    }}
+                    style={{
+                      fontSize: "22px",
+                      fontWeight: "bold",
+                      marginBottom: "8px",
+                    }}
+                  />
+                </Link>
                 <p
                   style={{
                     color: "#ccc",
@@ -81,18 +95,6 @@ export default function NewsIndex({ allNews }) {
                 >
                   {shortDescription}
                 </p>
-                {news.url && (
-                  <Link
-                    href={`/news/${news.url}`}
-                    style={{
-                      color: "#ff4d4d",
-                      fontWeight: "bold",
-                      textDecoration: "none",
-                    }}
-                  >
-                    আরও পড়ুন ➔
-                  </Link>
-                )}
               </div>
             </div>
           );
