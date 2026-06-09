@@ -1,106 +1,128 @@
 import clientPromise from "@/lib/mongodb";
 import Link from "next/link";
+import { useRouter } from "next/router";
+import Head from "next/head";
 
 export default function NewsIndex({ allNews }) {
-  // 🎯 সেফটি চেক: যদি ডাটাবেজ থেকে কোনো কারণে অ্যারে না আসে
+  const router = useRouter();
+  const { locale } = router;
+
   if (!allNews || allNews.length === 0) {
     return (
       <h2 style={{ color: "#fff", textAlign: "center", marginTop: "50px" }}>
-        কোনো খবর পাওয়া যায়নি!
+        {locale === "bn" ? "কোনো খবর পাওয়া যায়নি!" : "No news found!"}
       </h2>
     );
   }
 
+  const metaTitle =
+    locale === "bn"
+      ? "SPayTimes News - সর্বশেষ বিশ্ব সংবাদ"
+      : "SPayTimes News - Latest Global News";
+  const metaDesc =
+    locale === "bn"
+      ? "سারা পৃথিবীর রাজনীতি, প্রযুক্তি এবং ব্রেকিং নিউজ সবার আগে পড়ুন।"
+      : "Read the latest politics, technology, and breaking news from around the world.";
+
   return (
-    <div
-      style={{
-        maxWidth: "900px",
-        margin: "0 auto",
-        padding: "20px",
-        color: "#fff",
-        backgroundColor: "#111",
-        fontFamily: "sans-serif",
-      }}
-    >
-      <h1 style={{ textAlign: "center", margin: "30px 0", color: "#ff4d4d" }}>
-        সর্বশেষ খবর
-      </h1>
+    <>
+      <Head>
+        <title>{metaTitle}</title>
+        <meta name="description" content={metaDesc} />
+        <meta property="og:title" content={metaTitle} />
+        <meta property="og:description" content={metaDesc} />
+      </Head>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-        {allNews.map((news) => {
-          // 🎯 সেফটি: ডেসক্রিপশন খালি থাকলে ক্র্যাশ ঠেকানোর লজিক
-          const descriptionText = news.description || "";
-          const pureText = descriptionText.replace(/<[^>]*>/g, "");
-          const shortDescription =
-            pureText.length > 160
-              ? pureText.substring(0, 160) + "..."
-              : pureText;
+      <div
+        style={{
+          maxWidth: "900px",
+          margin: "0 auto",
+          padding: "20px",
+          color: "#fff",
+          backgroundColor: "#111",
+          fontFamily: "sans-serif",
+        }}
+      >
+        <h1 style={{ textAlign: "center", margin: "30px 0", color: "#ff4d4d" }}>
+          {locale === "bn" ? "সর্বশেষ খবর" : "LATEST NEWS"}
+        </h1>
 
-          return (
-            <div
-              key={news._id}
-              style={{
-                marginBottom: "30px",
-                background: "#1e293b",
-                padding: "20px",
-                borderRadius: "12px",
-                boxShadow: "0 4px 15px rgba(0,0,0,0.2)",
-              }}
-            >
-              <Link
-                href={`/news/${news.url}`}
+        <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+          {allNews.map((news) => {
+            const displayTitle =
+              news[`title_${locale}`] || news.title || "শিরোনামহীন";
+            const displayDescription =
+              news[`description_${locale}`] || news.description || "";
+
+            const pureText = displayDescription.replace(/<[^>]*>/g, "");
+            const shortDescription =
+              pureText.length > 160
+                ? pureText.substring(0, 160) + "..."
+                : pureText;
+            const pureTitleForAlt = displayTitle.replace(/<[^>]*>/g, "");
+
+            return (
+              <div
+                key={news._id}
                 style={{
-                  textDecoration: "none",
+                  marginBottom: "30px",
+                  background: "#1e293b",
+                  padding: "20px",
+                  borderRadius: "12px",
+                  boxShadow: "0 4px 15px rgba(0,0,0,0.2)",
                 }}
               >
-                {/* 🎯 ইমেজ ফিল্ড ফাঁকা স্ট্রিং ("") হলে যেন এরর না দেয় */}
-                {news.image && news.image.trim() !== "" && (
-                  <img
-                    src={news.image}
-                    alt={news.imageAlt || news.title}
-                    style={{
-                      width: "100%",
-                      maxHeight: "400px",
-                      objectFit: "cover",
-                      borderRadius: "8px",
-                      marginBottom: "15px",
-                    }}
-                  />
-                )}
-              </Link>
-              <div>
                 <Link
                   href={`/news/${news.url}`}
-                  style={{
-                    textDecoration: "none",
-                  }}
+                  locale={locale}
+                  style={{ textDecoration: "none" }}
                 >
-                  <div
-                    dangerouslySetInnerHTML={{
-                      __html: news.title || "শিরোনামহীন",
-                    }}
-                    style={{
-                      fontSize: "22px",
-                      fontWeight: "bold",
-                      marginBottom: "8px",
-                    }}
-                  />
+                  {news.image && news.image.trim() !== "" && (
+                    <img
+                      src={news.image}
+                      alt={news.imageAlt || pureTitleForAlt}
+                      style={{
+                        width: "100%",
+                        maxHeight: "400px",
+                        objectFit: "cover",
+                        borderRadius: "8px",
+                        marginBottom: "15px",
+                      }}
+                    />
+                  )}
                 </Link>
-                <p
-                  style={{
-                    color: "#ccc",
-                    fontSize: "15px",
-                    margin: "0 0 12px 0",
-                  }}
-                >
-                  {shortDescription}
-                </p>
+
+                <div>
+                  <Link
+                    href={`/news/${news.url}`}
+                    locale={locale}
+                    style={{ textDecoration: "none", color: "#fff" }}
+                  >
+                    <div
+                      dangerouslySetInnerHTML={{ __html: displayTitle }}
+                      style={{
+                        fontSize: "22px",
+                        fontWeight: "bold",
+                        marginBottom: "8px",
+                      }}
+                    />
+                  </Link>
+                  <p
+                    style={{
+                      color: "#ccc",
+                      fontSize: "15px",
+                      margin: "0 0 12px 0",
+                    }}
+                  >
+                    {shortDescription}
+                  </p>
+                </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 
@@ -108,8 +130,6 @@ export async function getStaticProps() {
   try {
     const client = await clientPromise;
     const db = client.db("news");
-
-    // 🎯 আপনার দেওয়া কালেকশন নেম 'news1' নিশ্চিত করা হলো
     const allNews = await db
       .collection("news1")
       .find({})
@@ -117,13 +137,10 @@ export async function getStaticProps() {
       .toArray();
 
     return {
-      props: {
-        allNews: JSON.parse(JSON.stringify(allNews)),
-      },
+      props: { allNews: JSON.parse(JSON.stringify(allNews)) },
       revalidate: 10,
     };
   } catch (error) {
-    // 🎯 যদি ডাটাবেজ কানেকশনে কোনো ঝামেলা হয়, তবে ফাঁকা অ্যারে পাস করবে যাতে সাইট ক্র্যাশ না করে
     return {
       props: { allNews: [] },
       revalidate: 10,

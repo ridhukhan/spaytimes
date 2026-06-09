@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
-import { useRouter } from "next/router"; // 🎯 রাউটার ইম্পোর্ট করলাম রিডাইরেক্ট করার জন্
+import { useRouter } from "next/router";
+
 export default function Dashboard() {
   const router = useRouter();
-
   const [authorised, setAuthorised] = useState(false);
+
   useEffect(() => {
     const isLoggedAdmin = localStorage.getItem("adminLoggedIn");
     if (!isLoggedAdmin) {
@@ -19,6 +20,7 @@ export default function Dashboard() {
     description: "",
     url: "",
     imageAlt: "",
+    metaKeywords: "",
     section1h: "",
     section1b: "",
     section2h: "",
@@ -44,11 +46,16 @@ export default function Dashboard() {
     e.preventDefault();
     setLoading(true);
 
-    // 🎯 ম্যাজিক ট্রিক: খালি ইনপুটগুলো ডাটাবেজে পাঠানোর আগেই ছেঁকে ফেলে দেওয়া হচ্ছে
     const cleanedData = { ...formData };
+
+    // ফাঁকা বা খালি স্ট্রিং ফিল্ডগুলো একদম রিমুভ করা
     Object.keys(cleanedData).forEach((key) => {
-      if (cleanedData[key] === "" || cleanedData[key] === null) {
-        delete cleanedData[key]; // খালি থাকলে ওই ফিল্ডটা ডাটাবেজেই যাবে না!
+      if (
+        cleanedData[key] === "" ||
+        cleanedData[key] === null ||
+        cleanedData[key] === undefined
+      ) {
+        delete cleanedData[key];
       }
     });
 
@@ -56,18 +63,20 @@ export default function Dashboard() {
       const res = await fetch("/api/post", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(cleanedData), // 🎯 এখানে cleanedData পাঠানো হচ্ছে
+        body: JSON.stringify(cleanedData),
       });
+
       const data = await res.json();
 
       if (data.success) {
-        alert("🎉 খবর একদম লাইভ হয়ে গেছে ভাই!");
+        alert("🎉 খবর একদম লাইভ হয়ে গেছে ভাই!");
         setFormData({
           title: "",
           image: "",
           description: "",
           url: "",
           imageAlt: "",
+          metaKeywords: "",
           section1h: "",
           section1b: "",
           section2h: "",
@@ -84,21 +93,22 @@ export default function Dashboard() {
           section7b: "",
         });
       } else {
-        alert("ঝামেলা হয়েছে: " + data.error);
+        alert("ঝামেলা হয়েছে: " + (data.error || "Unknown server error"));
       }
     } catch (err) {
-      alert("সার্ভার কানেক্ট হচ্ছে না!");
+      alert("সার্ভার রেসপন্স করছে না বা ৫০২ এরর এসেছে!");
     } finally {
       setLoading(false);
     }
   };
-  if (!authorised) {
+
+  if (!authorised)
     return (
       <div style={{ color: "#fff", textAlign: "center", marginTop: "100px" }}>
         চেক করা হচ্ছে...
       </div>
     );
-  }
+
   return (
     <div
       style={{
@@ -118,9 +128,7 @@ export default function Dashboard() {
         onSubmit={handleSubmit}
         style={{ display: "flex", flexDirection: "column", gap: "12px" }}
       >
-        <label>
-          খবরের মূল টাইটেল (HTML ট্যাগসহ যেমন: &lt;h3&gt;খবর&lt;/h3&gt;):
-        </label>
+        <label>খবরের মূল টাইটেল (HTML ট্যাগসহ):</label>
         <input
           style={inputStyle}
           type="text"
@@ -139,6 +147,7 @@ export default function Dashboard() {
           onChange={handleChange}
           placeholder="https://res.cloudinary.com/..."
         />
+
         <label>img name (Image Alt):</label>
         <input
           style={inputStyle}
@@ -147,6 +156,16 @@ export default function Dashboard() {
           value={formData.imageAlt}
           onChange={handleChange}
           placeholder="write image name"
+        />
+
+        <label>এসইও মেটা কিওয়ার্ড (Meta Keywords - কমা দিয়ে):</label>
+        <input
+          style={inputStyle}
+          type="text"
+          name="metaKeywords"
+          value={formData.metaKeywords}
+          onChange={handleChange}
+          placeholder="যেমন: instagram, reels viral, tricks 2026"
         />
 
         <label>মূল ডেসক্রিপশন (&lt;p&gt;ট্যাগসহ):</label>
@@ -158,7 +177,7 @@ export default function Dashboard() {
           required
         />
 
-        <label>কাস্টম ইউআরএল পাথ (যেমন: nstagram-viral-tricks):</label>
+        <label>কাস্টম ইউআরএল পাথ:</label>
         <input
           style={inputStyle}
           type="text"
@@ -166,7 +185,7 @@ export default function Dashboard() {
           value={formData.url}
           onChange={handleChange}
           required
-          placeholder="space না দিয়ে dash (-) ব্যবহার করুন"
+          placeholder="space না দিয়ে dash (-) ব্যবহার করুন"
         />
 
         <hr style={{ borderColor: "#333", margin: "20px 0" }} />
