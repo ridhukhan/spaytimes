@@ -143,7 +143,7 @@ export default function Dashboard() {
         <input
           style={inputStyle}
           type="text"
-          name="image"
+          name="imagename"
           value={formData.imageAlt}
           onChange={handleChange}
           placeholder="write image name"
