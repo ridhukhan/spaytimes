@@ -28,7 +28,7 @@ export default function SingleNews({ newsItem }) {
       {newsItem.image && (
         <img
           src={newsItem.image}
-          alt="news"
+          alt={newsItem.imageAlt || newsItem.title}
           style={{
             width: "100%",
             maxHeight: "420px",

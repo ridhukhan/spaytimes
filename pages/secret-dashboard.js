@@ -18,6 +18,7 @@ export default function Dashboard() {
     image: "",
     description: "",
     url: "",
+    imageAlt: "",
     section1h: "",
     section1b: "",
     section2h: "",
@@ -66,6 +67,7 @@ export default function Dashboard() {
           image: "",
           description: "",
           url: "",
+          imageAlt: "",
           section1h: "",
           section1b: "",
           section2h: "",
@@ -136,6 +138,15 @@ export default function Dashboard() {
           value={formData.image}
           onChange={handleChange}
           placeholder="https://res.cloudinary.com/..."
+        />
+        <label>img name (Image Alt):</label>
+        <input
+          style={inputStyle}
+          type="text"
+          name="image"
+          value={formData.imageAlt}
+          onChange={handleChange}
+          placeholder="write image name"
         />
 
         <label>মূল ডেসক্রিপশন (&lt;p&gt;ট্যাগসহ):</label>

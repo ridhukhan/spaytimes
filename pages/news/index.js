@@ -57,7 +57,7 @@ export default function NewsIndex({ allNews }) {
                 {news.image && news.image.trim() !== "" && (
                   <img
                     src={news.image}
-                    alt="news"
+                    alt={news.imagealt || news.title}
                     style={{
                       width: "100%",
                       maxHeight: "400px",
