@@ -21,6 +21,7 @@ export default function AdminLogin() {
       const data = await res.json();
 
       if (data.success) {
+        localStorage.setItem("adminLoggedIn", "true");
         router.push("/secret-dashboard");
       } else {
         alert(data.message || "Something went wrong");

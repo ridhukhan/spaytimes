@@ -1,6 +1,18 @@
-import { useState } from "react";
-
+import { useEffect, useState } from "react";
+import { useRouter } from "next/router"; // 🎯 রাউটার ইম্পোর্ট করলাম রিডাইরেক্ট করার জন্
 export default function Dashboard() {
+  const router = useRouter();
+
+  const [authorised, setAuthorised] = useState(false);
+  useEffect(() => {
+    const isLoggedAdmin = localStorage.getItem("adminLoggedIn");
+    if (!isLoggedAdmin) {
+      router.push("/admin-login");
+    } else {
+      setAuthorised(true);
+    }
+  }, [router]);
+
   const [formData, setFormData] = useState({
     title: "",
     image: "",
@@ -78,6 +90,13 @@ export default function Dashboard() {
       setLoading(false);
     }
   };
+  if (!authorised) {
+    return (
+      <div style={{ color: "#fff", textAlign: "center", marginTop: "100px" }}>
+        চেক করা হচ্ছে...
+      </div>
+    );
+  }
   return (
     <div
       style={{
