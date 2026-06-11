@@ -48,7 +48,6 @@ export default function Dashboard() {
 
     const cleanedData = { ...formData };
 
-    // ফাঁকা বা খালি স্ট্রিং ফিল্ডগুলো একদম রিমুভ করা
     Object.keys(cleanedData).forEach((key) => {
       if (
         cleanedData[key] === "" ||
@@ -158,7 +157,7 @@ export default function Dashboard() {
           placeholder="write image name"
         />
 
-        <label>এসইও মেটা কিওয়ার্ড (Meta Keywords - কমা দিয়ে):</label>
+        <label>এসইઓ মেটা কিওয়ার্ড (Meta Keywords - কমা দিয়ে):</label>
         <input
           style={inputStyle}
           type="text"
@@ -208,14 +207,14 @@ export default function Dashboard() {
               style={inputStyle}
               type="text"
               name={`section${num}h`}
-              value={formData[`section${num}h`]}
+              value={formData[`section${num}h`] || ""}
               onChange={handleChange}
               placeholder={`সেকশন ${num} এর হেড ট্যাগ`}
             />
             <textarea
               style={textStyle}
               name={`section${num}b`}
-              value={formData[`section${num}b`]}
+              value={formData[`section${num}b`] || ""}
               onChange={handleChange}
               placeholder={`সেকশন ${num} এর বডি বা প্যারাগ্রাফ ট্যাগ`}
             />

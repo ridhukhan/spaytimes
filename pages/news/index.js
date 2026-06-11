@@ -21,7 +21,7 @@ export default function NewsIndex({ allNews }) {
       : "SPayTimes News - Latest Global News";
   const metaDesc =
     locale === "bn"
-      ? "سারা পৃথিবীর রাজনীতি, প্রযুক্তি এবং ব্রেকিং নিউজ সবার আগে পড়ুন।"
+      ? "সারা পৃথিবীর রাজনীতি, প্রযুক্তি এবং ব্রেকিং নিউজ সবার আগে পড়ুন।"
       : "Read the latest politics, technology, and breaking news from around the world.";
 
   return (

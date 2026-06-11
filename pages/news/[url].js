@@ -1,21 +1,20 @@
 import clientPromise from "@/lib/mongodb";
-import { GoogleGenAI } from "@google/genai";
 import Head from "next/head";
 import { useRouter } from "next/router";
-
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 export default function SingleNews({ newsItem }) {
   const router = useRouter();
   const { locale } = router;
 
-  if (!newsItem)
+  if (!newsItem) {
     return (
       <h2 style={{ color: "#fff", textAlign: "center", marginTop: "50px" }}>
         খবরটি পাওয়া যায়নি!
       </h2>
     );
+  }
 
+  // ল্যাঙ্গুয়েজ অনুযায়ী ডেটা সেট (ফ্যালব্যাক সহ)
   const displayTitle = newsItem[`title_${locale}`] || newsItem.title;
   const displayDescription =
     newsItem[`description_${locale}`] || newsItem.description;
@@ -116,66 +115,14 @@ export default function SingleNews({ newsItem }) {
 
 export async function getStaticProps(context) {
   const { url } = context.params;
-  const locale = context.locale || "bn";
 
   const client = await clientPromise;
   const db = client.db("news");
-  let newsItem = await db
+  const newsItem = await db
     .collection("news1")
     .findOne({ url: url.toLowerCase() });
 
   if (!newsItem) return { notFound: true };
-
-  if (locale !== "bn" && !newsItem[`title_${locale}`]) {
-    try {
-      const dataToTranslate = {
-        title: newsItem.title,
-        description: newsItem.description,
-        metaKeywords: newsItem.metaKeywords || "",
-      };
-
-      for (let i = 1; i <= 7; i++) {
-        if (newsItem[`section${i}h`])
-          dataToTranslate[`section${i}h`] = newsItem[`section${i}h`];
-        if (newsItem[`section${i}b`])
-          dataToTranslate[`section${i}b`] = newsItem[`section${i}b`];
-      }
-
-      const response = await ai.models.generateContent({
-        model: "gemini-2.5-flash",
-        contents: `You are an expert translator. Translate the values of the following JSON object into fluent and natural ${locale} language. 
-        - Keep the JSON keys EXACTLY the same.
-        - Preserve any HTML tags (like <p>, <h3>, etc.) inside the values.
-        - For metaKeywords, keep them comma-separated.
-        - Return ONLY the raw translated JSON object. Do not include any markdown formatting or backticks (\`\`\`json).
-        
-        JSON to translate: ${JSON.stringify(dataToTranslate)}`,
-      });
-
-      let responseText = response.text.trim();
-      // 🎯 একদম এক লাইনে লিখতে হবে যেন সিনট্যাক্স ঠিক থাকে
-      if (responseText.startsWith("```")) {
-        responseText = responseText.replace(/```json|```/g, "").trim();
-      }
-
-      const translatedData = JSON.parse(responseText);
-      const updateDoc = {};
-
-      Object.keys(translatedData).forEach((key) => {
-        const translatedValue = translatedData[key]
-          ? translatedData[key].trim()
-          : "";
-        updateDoc[`${key}_${locale}`] = translatedValue;
-        newsItem[`${key}_${locale}`] = translatedValue;
-      });
-
-      await db
-        .collection("news1")
-        .updateOne({ _id: newsItem._id }, { $set: updateDoc });
-    } catch (err) {
-      console.error("Single-call AI translation failed:", err);
-    }
-  }
 
   return {
     props: { newsItem: JSON.parse(JSON.stringify(newsItem)) },
