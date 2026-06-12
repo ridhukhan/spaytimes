@@ -148,6 +148,32 @@ export default function App({ Component, pageProps }) {
             >
               Contact
             </a>
+            <a
+              href="/terms-&-condition"
+              onClick={() => setClicked(false)}
+              style={{
+                fontSize: "28px",
+                color: "#fff",
+                textDecoration: "none",
+                fontWeight: "600",
+                letterSpacing: "1px",
+              }}
+            >
+              Terms & Condition
+            </a>
+            <a
+              href="/privacy-policy"
+              onClick={() => setClicked(false)}
+              style={{
+                fontSize: "28px",
+                color: "#fff",
+                textDecoration: "none",
+                fontWeight: "600",
+                letterSpacing: "1px",
+              }}
+            >
+              Privacy Policy
+            </a>
           </div>
         </div>
       ) : null}
