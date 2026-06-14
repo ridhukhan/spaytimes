@@ -9,14 +9,15 @@ export default function Document() {
           name="google-site-verification"
           content="YKV5isgDqhu4dkETERczQhgtmDNNuQDOgnulgr_Jlf8"
         />
+        <script 
+          async 
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3178631785053369"
+          crossOrigin="anonymous"
+        ></script>
       </Head>
 
       <body>
-        <Script
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3178631785053369"
-          strategy="afterInteractive"
-          crossOrigin="anonymous"
-        />
+      
         <Main />
         <NextScript />
       </body>
