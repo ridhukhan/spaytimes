@@ -5,6 +5,10 @@ export default function Dashboard() {
   const router = useRouter();
   const [authorised, setAuthorised] = useState(false);
 
+  // ⚙️ আপনার ক্লাউডিনারি ইনফরমেশন এখানে বসান
+  const CLOUD_NAME = "dfzaefrkt"; // 👈 আপনার Cloudinary Cloud Name এখানে দিন
+  const UPLOAD_PRESET = "spaytimes_preset"; // 👈 ধাপ ১ এ তৈরি করা Unsigned Preset নাম দিন
+
   useEffect(() => {
     const isLoggedAdmin = localStorage.getItem("adminLoggedIn");
     if (!isLoggedAdmin) {
@@ -37,9 +41,47 @@ export default function Dashboard() {
     section7b: "",
   });
   const [loading, setLoading] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false); // ইমেজ আপলোডিং স্টেট
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  // 📸 সরাসরি ক্লাউডিনারিতে ইমেজ আপলোড করার ফাংশন
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setUploadingImage(true);
+    const data = new FormData();
+    data.append("file", file);
+    data.append("upload_preset", UPLOAD_PRESET); // Unsigned Preset
+
+    try {
+      const res = await fetch(
+        `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,
+        {
+          method: "POST",
+          body: data,
+        },
+      );
+      const fileData = await res.json();
+
+      if (fileData.secure_url) {
+        // আপলোড সফল হলে অটোমেটিক ইমেজ ইউআরএল ইনপুটে বসে যাবে
+        setFormData((prev) => ({ ...prev, image: fileData.secure_url }));
+        alert("📸 ছবি সাকসেসফুলি আপলোড হয়েছে!");
+      } else {
+        alert(
+          "ইমেজ আপলোড করতে সমস্যা হয়েছে। Preset ও Cloud Name ঠিক আছে কি না চেক করুন।",
+        );
+      }
+    } catch (err) {
+      console.error(err);
+      alert("ক্লাউডিনারি সার্ভারে কানেক্ট করা যাচ্ছে না!");
+    } finally {
+      setUploadingImage(false);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -137,15 +179,56 @@ export default function Dashboard() {
           required
         />
 
-        <label>ক্লাউডিনারি ইমেজ ইউআরএল (Image URL):</label>
+        {/* 🚀 নতুন ডিরেক্ট ফাইল আপলোড সেকশন */}
+        <label style={{ fontWeight: "bold", color: "#38bdf8" }}>
+          সরাসরি পিসি/মোবাইল থেকে ইমেজ আপলোড করুন:
+        </label>
+        <input
+          type="file"
+          accept="image/*"
+          onChange={handleImageUpload}
+          style={{
+            padding: "10px",
+            background: "#222",
+            border: "1px dashed #38bdf8",
+            borderRadius: "6px",
+            color: "#fff",
+            cursor: "pointer",
+          }}
+        />
+        {uploadingImage && (
+          <span style={{ color: "#38bdf8", fontSize: "14px" }}>
+            ⏳ ক্লাউডিনারিতে আপলোড হচ্ছে, একটু অপেক্ষা করুন...
+          </span>
+        )}
+
+        <label>অথবা ক্লাউডিনারি ইমেজ ইউআরএল (অটোমেটিক বসে যাবে):</label>
         <input
           style={inputStyle}
           type="text"
           name="image"
           value={formData.image}
           onChange={handleChange}
-          placeholder="https://res.cloudinary.com/..."
+          placeholder="ফাইল সিলেক্ট করলে এখানে অটোমেটিক ইউআরএল চলে আসবে"
         />
+
+        {/* প্রিভিউ দেখানোর জন্য ছোট একটা উইন্ডো */}
+        {formData.image && (
+          <div style={{ marginTop: "10px" }}>
+            <p style={{ fontSize: "12px", color: "#4ade80" }}>
+              📸 আপলোড করা ছবির প্রিভিউ:
+            </p>
+            <img
+              src={formData.image}
+              alt="Preview"
+              style={{
+                maxWidth: "200px",
+                borderRadius: "6px",
+                border: "1px solid #444",
+              }}
+            />
+          </div>
+        )}
 
         <label>img name (Image Alt):</label>
         <input
@@ -223,15 +306,15 @@ export default function Dashboard() {
 
         <button
           type="submit"
-          disabled={loading}
+          disabled={loading || uploadingImage}
           style={{
-            background: "#ff4d4d",
+            background: loading || uploadingImage ? "#555" : "#ff4d4d",
             color: "#fff",
             padding: "12px",
             border: "none",
             borderRadius: "6px",
             fontWeight: "bold",
-            cursor: "pointer",
+            cursor: loading || uploadingImage ? "not-allowed" : "pointer",
             fontSize: "16px",
           }}
         >
