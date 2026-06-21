@@ -5,9 +5,9 @@ export default function Dashboard() {
   const router = useRouter();
   const [authorised, setAuthorised] = useState(false);
 
-  // ⚙️ আপনার ক্লাউডিনারি ইনফরমেশন এখানে বসান
-  const CLOUD_NAME = "dfzaefrkt"; // 👈 আপনার Cloudinary Cloud Name এখানে দিন
-  const UPLOAD_PRESET = "spaytimes_preset"; // 👈 ধাপ ১ এ তৈরি করা Unsigned Preset নাম দিন
+  // ⚙️ আপনার ক্লাউডিনারি ইনফরমেশন অলরেডি সেট করা আছে
+  const CLOUD_NAME = "dfzaefrkt";
+  const UPLOAD_PRESET = "spaytimes_preset";
 
   useEffect(() => {
     const isLoggedAdmin = localStorage.getItem("adminLoggedIn");
@@ -19,6 +19,7 @@ export default function Dashboard() {
   }, [router]);
 
   const [formData, setFormData] = useState({
+    category: "news", // 👈 নতুন ক্যাটাগরি ফিল্ড (ডিফল্ট 'news')
     title: "",
     image: "",
     description: "",
@@ -70,11 +71,9 @@ export default function Dashboard() {
       if (fileData.secure_url) {
         // আপলোড সফল হলে অটোমেটিক ইমেজ ইউআরএল ইনপুটে বসে যাবে
         setFormData((prev) => ({ ...prev, image: fileData.secure_url }));
-        alert("📸 ছবি সাকসেসফুলি আপলোড হয়েছে!");
+        alert("photo upload successed");
       } else {
-        alert(
-          "ইমেজ আপলোড করতে সমস্যা হয়েছে। Preset ও Cloud Name ঠিক আছে কি না চেক করুন।",
-        );
+        alert("something wrong");
       }
     } catch (err) {
       console.error(err);
@@ -110,8 +109,11 @@ export default function Dashboard() {
       const data = await res.json();
 
       if (data.success) {
-        alert("🎉 খবর একদম লাইভ হয়ে গেছে ভাই!");
+        alert(
+          `🎉 ${formData.category === "news" ? "সাধারণ খবর" : "বিনোদন নিউজ"} post uploaded`,
+        );
         setFormData({
+          category: "news", // রিসেট করার পর আবার ডিফল্ট 'news' হবে
           title: "",
           image: "",
           description: "",
@@ -163,13 +165,33 @@ export default function Dashboard() {
       }}
     >
       <h2 style={{ textAlign: "center", color: "#ff4d4d" }}>
-        NEWS UPLOAD DASHBOARD
+        UNIVERSAL UPLOAD DASHBOARD
       </h2>
       <form
         onSubmit={handleSubmit}
         style={{ display: "flex", flexDirection: "column", gap: "12px" }}
       >
-        <label>খবরের মূল টাইটেল (HTML ট্যাগসহ):</label>
+        {/* 🎯 নতুন ক্যাটাগরি সিলেক্ট করার ড্রপডাউন মেন্যু */}
+        <label style={{ fontWeight: "bold", color: "#4ade80" }}>
+          SELECT NEWS CATEGORIES
+        </label>
+        <select
+          name="category"
+          value={formData.category}
+          onChange={handleChange}
+          style={{
+            ...inputStyle,
+            background: "#1e293b",
+            borderColor: "#4ade80",
+            cursor: "pointer",
+            fontSize: "15px",
+          }}
+        >
+          <option value="news">General News </option>
+          <option value="entertainment">Entertainment News</option>
+        </select>
+
+        <label>TITILE:</label>
         <input
           style={inputStyle}
           type="text"
@@ -179,7 +201,7 @@ export default function Dashboard() {
           required
         />
 
-        {/* 🚀 নতুন ডিরেক্ট ফাইল আপলোড সেকশন */}
+        {/* 🚀 ডিরেক্ট ফাইল আপলোড সেকশন */}
         <label style={{ fontWeight: "bold", color: "#38bdf8" }}>
           সরাসরি পিসি/মোবাইল থেকে ইমেজ আপলোড করুন:
         </label>
@@ -240,7 +262,7 @@ export default function Dashboard() {
           placeholder="write image name"
         />
 
-        <label>এসইઓ মেটা কিওয়ার্ড (Meta Keywords - কমা দিয়ে):</label>
+        <label>META KEYWORD WITH COMMA:</label>
         <input
           style={inputStyle}
           type="text"
@@ -284,7 +306,7 @@ export default function Dashboard() {
             }}
           >
             <span style={{ color: "#ff4d4d", fontWeight: "bold" }}>
-              সেকশন {num}
+              SECTION{num}
             </span>
             <input
               style={inputStyle}
@@ -318,7 +340,7 @@ export default function Dashboard() {
             fontSize: "16px",
           }}
         >
-          {loading ? "আপলোড হচ্ছে..." : "লাইভ পাবলিশ করুন 🚀"}
+          {loading ? "uploading..." : "upload"}
         </button>
       </form>
     </div>
@@ -334,6 +356,7 @@ const inputStyle = {
   borderRadius: "4px",
   boxSizing: "border-box",
 };
+
 const textStyle = {
   width: "100%",
   padding: "10px",

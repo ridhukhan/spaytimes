@@ -1,28 +1,26 @@
 import clientPromise from "@/lib/mongodb";
 import Link from "next/link";
-import { useRouter } from "next/router";
-import Head from "next/head";
+import Head from "head";
 
 export default function NewsIndex({ allNews }) {
-  const router = useRouter();
-  const { locale } = router;
-
   if (!allNews || allNews.length === 0) {
     return (
-      <h2 style={{ color: "#fff", textAlign: "center", marginTop: "50px" }}>
-        {locale === "bn" ? "কোনো খবর পাওয়া যায়নি!" : "No news found!"}
+      <h2
+        style={{
+          color: "#fff",
+          textAlign: "center",
+          marginTop: "50px",
+          fontFamily: "sans-serif",
+        }}
+      >
+        কোনো খবর পাওয়া যায়নি!
       </h2>
     );
   }
 
-  const metaTitle =
-    locale === "bn"
-      ? "SPayTimes News - সর্বশেষ বিশ্ব সংবাদ"
-      : "SPayTimes News - Latest Global News";
+  const metaTitle = "SPayTimes News - সর্বশেষ বিশ্ব সংবাদ";
   const metaDesc =
-    locale === "bn"
-      ? "সারা পৃথিবীর রাজনীতি, প্রযুক্তি এবং ব্রেকিং নিউজ সবার আগে পড়ুন।"
-      : "Read the latest politics, technology, and breaking news from around the world.";
+    "সারা পৃথিবীর রাজনীতি, প্রযুক্তি এবং ব্রেকিং নিউজ সবার আগে পড়ুন।";
 
   return (
     <>
@@ -44,15 +42,13 @@ export default function NewsIndex({ allNews }) {
         }}
       >
         <h1 style={{ textAlign: "center", margin: "30px 0", color: "#ff4d4d" }}>
-          {locale === "bn" ? "সর্বশেষ খবর" : "LATEST NEWS"}
+          সর্বশেষ খবর
         </h1>
 
         <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
           {allNews.map((news) => {
-            const displayTitle =
-              news[`title_${locale}`] || news.title || "শিরোনামহীন";
-            const displayDescription =
-              news[`description_${locale}`] || news.description || "";
+            const displayTitle = news.title || "শিরোনামহীন";
+            const displayDescription = news.description || "";
 
             const pureText = displayDescription.replace(/<[^>]*>/g, "");
             const shortDescription =
@@ -74,7 +70,6 @@ export default function NewsIndex({ allNews }) {
               >
                 <Link
                   href={`/news/${news.url}`}
-                  locale={locale}
                   style={{ textDecoration: "none" }}
                 >
                   {news.image && news.image.trim() !== "" && (
@@ -95,7 +90,6 @@ export default function NewsIndex({ allNews }) {
                 <div>
                   <Link
                     href={`/news/${news.url}`}
-                    locale={locale}
                     style={{ textDecoration: "none", color: "#fff" }}
                   >
                     <div

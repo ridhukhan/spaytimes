@@ -1,5 +1,4 @@
 import { client } from "../../sanity/lib/client";
-// 🎯 এই যে এখানে urlFor ইম্পোর্ট করা বাকি ছিল, যা আমরা যোগ করে দিলাম!
 import { urlFor } from "../../sanity/lib/client"; // আপনার প্রজেক্টের পাথ অনুযায়ী client ফাইলের লোকেশন ঠিক রাখুন
 import Link from "next/link";
 
