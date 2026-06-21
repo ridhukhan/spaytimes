@@ -123,6 +123,19 @@ export default function App({ Component, pageProps }) {
               news
             </a>
             <a
+              href="/entertainment"
+              onClick={() => setClicked(false)}
+              style={{
+                fontSize: "28px",
+                color: "#fff",
+                textDecoration: "none",
+                fontWeight: "600",
+                letterSpacing: "1px",
+              }}
+            >
+              Entertainment
+            </a>
+            <a
               href="/about"
               onClick={() => setClicked(false)}
               style={{
