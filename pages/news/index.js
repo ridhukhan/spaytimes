@@ -1,7 +1,6 @@
 import clientPromise from "@/lib/mongodb";
 import Link from "next/link";
-import Head from "head";
-
+import Head from "next/head"; //  এটা সঠিক
 export default function NewsIndex({ allNews }) {
   if (!allNews || allNews.length === 0) {
     return (
