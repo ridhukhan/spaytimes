@@ -1,41 +1,126 @@
 import clientPromise from "@/lib/mongodb";
+import Link from "next/link"; // 👈 লিংক ইম্পোর্ট করা হলো
+import Head from "next/head"; // 👈 হেড ইম্পোর্ট করা হলো
 
 export default function EntMain({ allent }) {
-  return (
-    <>
-      <div
+  if (!allent || allent.length === 0) {
+    return (
+      <h2
         style={{
-          padding: "20px",
           color: "#fff",
-          backgroundColor: "#111",
-          minHeight: "100vh",
+          textAlign: "center",
+          marginTop: "50px",
           fontFamily: "sans-serif",
         }}
       >
-        <h1 style={{ textAlign: "center", color: "#4ade80" }}>
+        কোনো বিনোদন নিউজ পাওয়া যায়নি!
+      </h2>
+    );
+  }
+
+  // 🎯 বিনোদন পেজের এসইও মেটা ডাটা
+  const metaTitle = "SPayTimes Entertainment - বিনোদন জগতের সর্বশেষ খবর";
+  const metaDesc =
+    "বলিউড, হলিউড, ঢালিউডসহ বিনোদন জগতের সব ট্রেন্ডিং খবরাখবর এবং গসিপ সবার আগে পড়ুন।";
+
+  return (
+    <>
+      <Head>
+        <title>{metaTitle}</title>
+        <meta name="description" content={metaDesc} />
+        <meta property="og:title" content={metaTitle} />
+        <meta property="og:description" content={metaDesc} />
+      </Head>
+
+      <div
+        style={{
+          maxWidth: "900px",
+          margin: "0 auto",
+          padding: "20px",
+          color: "#fff",
+          backgroundColor: "#111",
+          fontFamily: "sans-serif",
+          minHeight: "100vh",
+        }}
+      >
+        <h1 style={{ textAlign: "center", margin: "30px 0", color: "#4ade80" }}>
           🎬 Entertainment News & Blogs
         </h1>
 
-        <div style={{ maxWidth: "800px", margin: "20px auto" }}>
-          {allent && allent.length > 0 ? (
-            allent.map((item) => (
+        <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+          {allent.map((item) => {
+            const displayTitle = item.title || "শিরোনামহীন";
+            const displayDescription = item.description || "";
+
+            // HTML ট্যাগ রিমুভ করে শর্ট ডেসক্রিপশন তৈরি (যেমনটা নিউজ পেজে আছে)
+            const pureText = displayDescription.replace(/<[^>]*>/g, "");
+            const shortDescription =
+              pureText.length > 160
+                ? pureText.substring(0, 160) + "..."
+                : pureText;
+            const pureTitleForAlt = displayTitle.replace(/<[^>]*>/g, "");
+
+            return (
               <div
                 key={item._id}
                 style={{
+                  marginBottom: "30px",
                   background: "#1e293b",
-                  padding: "15px",
-                  marginBottom: "15px",
-                  borderRadius: "8px",
+                  padding: "20px",
+                  borderRadius: "12px",
+                  boxShadow: "0 4px 15px rgba(0,0,0,0.2)",
                 }}
               >
-                <h3 dangerouslySetInnerHTML={{ __html: item.title }} />
+                {/* 📸 ছবির ওপর ক্লিক করলে ডিটেইলস [cont].js পেজে যাবে */}
+                <Link
+                  href={`/entertainment/${item.url}`}
+                  style={{ textDecoration: "none" }}
+                >
+                  {item.image && item.image.trim() !== "" && (
+                    <img
+                      src={item.image}
+                      alt={item.imageAlt || pureTitleForAlt}
+                      style={{
+                        width: "100%",
+                        maxHeight: "400px",
+                        objectFit: "cover",
+                        borderRadius: "8px",
+                        marginBottom: "15px",
+                      }}
+                    />
+                  )}
+                </Link>
+
+                <div>
+                  {/* 📝 টাইটেলের ওপর ক্লিক করলে ডিটেইলস [cont].js পেজে যাবে */}
+                  <Link
+                    href={`/entertainment/${item.url}`}
+                    style={{ textDecoration: "none", color: "#fff" }}
+                  >
+                    <div
+                      dangerouslySetInnerHTML={{ __html: displayTitle }}
+                      style={{
+                        fontSize: "22px",
+                        fontWeight: "bold",
+                        marginBottom: "8px",
+                        color: "#4ade80", // বিনোদনের থিম কালার গ্রিন রাখা হলো
+                      }}
+                    />
+                  </Link>
+
+                  <p
+                    style={{
+                      color: "#ccc",
+                      fontSize: "15px",
+                      margin: "0 0 12px 0",
+                    }}
+                  >
+                    {shortDescription}
+                  </p>
+                </div>
               </div>
-            ))
-          ) : (
-            <p style={{ textAlign: "center", color: "#ccc" }}>
-              কোনো বিনোদন নিউজ পাওয়া যায়নি!
-            </p>
-          )}
+            );
+          })}
         </div>
       </div>
     </>
@@ -47,8 +132,6 @@ export async function getStaticProps() {
     const client = await clientPromise;
     const db = client.db("news");
 
-    // 🎯 ভুল সংশোধন ১: কালেকশনের নাম আপনার এপিআই অনুযায়ী (যেমন: entertainment1) দিতে হবে।
-    // 🎯 ভুল সংশোধন ২: অবশ্যই `.toArray()` এর আগে await ব্যবহার করতে হবে।
     const allentData = await db
       .collection("entertainment1")
       .find({})
@@ -56,14 +139,13 @@ export async function getStaticProps() {
       .toArray();
 
     return {
-      // 🎯 ভুল সংশোধন ৩: ভ্যারিয়েবলের সঠিক নাম পাঠানো হলো
       props: { allent: JSON.parse(JSON.stringify(allentData)) },
       revalidate: 10,
     };
   } catch (error) {
     console.error(error);
     return {
-      props: { allent: [] }, // 👈 ক্যাচ ব্লকেও সঠিক ভ্যারিয়েবল অলওয়েজ রিটার্ন করতে হবে
+      props: { allent: [] },
       revalidate: 10,
     };
   }
