@@ -3,7 +3,7 @@ import { client, urlFor } from "../sanity/lib/client"; // স্যানিট�
 import Link from "next/link";
 import Head from "next/head";
 
-export default function Home({ latestNews, latestBlogs }) {
+export default function Home({ latestNews, latestBlogs, latestent }) {
   return (
     <>
       <Head>
@@ -68,14 +68,6 @@ export default function Home({ latestNews, latestBlogs }) {
               insightful tech blogs, national politics, and trending updates.
               Delivered fast, fresh, and unbiased.
             </p>
-            <div
-              style={{
-                display: "flex",
-                gap: "15px",
-                justifyContent: "center",
-                marginTop: "25px",
-              }}
-            ></div>
           </div>
         </div>
 
@@ -101,14 +93,12 @@ export default function Home({ latestNews, latestBlogs }) {
               </Link>
             </div>
 
-            {/* হরাইজন্টাল স্ক্রোলিং ডিভ */}
             <div className="scroll-container" style={scrollContainerStyle}>
               {latestNews && latestNews.length > 0 ? (
                 latestNews.map((news) => {
                   const pureTitleForAlt = news.title
                     ? news.title.replace(/<[^>]*>/g, "")
                     : "news";
-
                   return (
                     <div key={news._id} className="scroll-card">
                       <Link
@@ -143,7 +133,7 @@ export default function Home({ latestNews, latestBlogs }) {
           </section>
 
           {/* ==================== ২. ব্লগ সেকশন (স্যানিটি থেকে) ==================== */}
-          <section style={{ marginBottom: "30px" }}>
+          <section style={{ marginBottom: "50px" }}>
             <div style={sectionHeaderStyle}>
               <h2
                 style={{
@@ -160,7 +150,6 @@ export default function Home({ latestNews, latestBlogs }) {
               </Link>
             </div>
 
-            {/* হরাইজন্টাল স্ক্রোলিং ডিভ */}
             <div className="scroll-container" style={scrollContainerStyle}>
               {latestBlogs && latestBlogs.length > 0 ? (
                 latestBlogs.map((post) => (
@@ -199,17 +188,77 @@ export default function Home({ latestNews, latestBlogs }) {
               )}
             </div>
           </section>
+
+          {/* ==================== ৩. বিনোদন সেকশন (মঙ্গোডিবি থেকে নতুন যুক্ত) ==================== */}
+          <section style={{ marginBottom: "50px" }}>
+            <div style={sectionHeaderStyle}>
+              <h2
+                style={{
+                  color: "#4ade80",
+                  margin: 0,
+                  fontSize: "26px",
+                  fontWeight: "700",
+                }}
+              >
+                🎬 Entertainment News
+              </h2>
+              <Link href="/entertainment" style={viewAllButtonStyle}>
+                View All ➔
+              </Link>
+            </div>
+
+            <div className="scroll-container" style={scrollContainerStyle}>
+              {latestent && latestent.length > 0 ? (
+                latestent.map((entertainment) => {
+                  const pureTitleForAlt = entertainment.title
+                    ? entertainment.title.replace(/<[^>]*>/g, "")
+                    : "entertainment";
+                  return (
+                    <div key={entertainment._id} className="scroll-card">
+                      <Link
+                        href={`/entertainment/${entertainment.url}`}
+                        style={{ textDecoration: "none", color: "inherit" }}
+                      >
+                        {entertainment.image &&
+                          entertainment.image.trim() !== "" && (
+                            <img
+                              src={entertainment.image}
+                              alt={entertainment.imageAlt || pureTitleForAlt}
+                              style={imageStyle}
+                            />
+                          )}
+                        <div style={{ padding: "15px" }}>
+                          <div
+                            dangerouslySetInnerHTML={{
+                              __html: entertainment.title || "Untitled",
+                            }}
+                            style={entTitleStyle}
+                          />
+                        </div>
+                      </Link>
+                    </div>
+                  );
+                })
+              ) : (
+                <p style={{ color: "#94a3b8", paddingLeft: "10px" }}>
+                  কোনো বিনোদন নিউজ পাওয়া যায়নি!
+                </p>
+              )}
+            </div>
+          </section>
         </div>
       </div>
     </>
   );
 }
 
-// ==================== ব্যাকএন্ড ডেটা ফেচিং (getStaticProps) ====================
+// ==================== 🚀 ব্যাকএন্ড ডেটা ফেচিং (getStaticProps) ====================
 export async function getStaticProps() {
   try {
     const mongoClient = await clientPromise;
     const db = mongoClient.db("news");
+
+    // ১. সাধারণ নিউজ আনা (সর্বশেষ ৫টা)
     const latestNews = await db
       .collection("news1")
       .find({})
@@ -217,6 +266,15 @@ export async function getStaticProps() {
       .limit(5)
       .toArray();
 
+    // 🎯 ২. বিনোদন নিউজ আনা (সর্বশেষ ৫টা নতুন যুক্ত করা হলো)
+    const latestent = await db
+      .collection("entertainment1")
+      .find({})
+      .sort({ _id: -1 })
+      .limit(5)
+      .toArray();
+
+    // ৩. স্যানিটি থেকে ব্লগ ডাটা আনা
     const latestBlogs = await client.fetch(
       `*[_type == "post"] | order(_createdAt desc) [0...5] { title, slug, mainImage }`,
     );
@@ -224,6 +282,7 @@ export async function getStaticProps() {
     return {
       props: {
         latestNews: JSON.parse(JSON.stringify(latestNews)),
+        latestent: JSON.parse(JSON.stringify(latestent)), // 👈 প্রপস আকারে পাঠানো হলো
         latestBlogs: latestBlogs || [],
       },
       revalidate: 10,
@@ -231,15 +290,13 @@ export async function getStaticProps() {
   } catch (error) {
     console.error("Home Page Data Fetching Error:", error);
     return {
-      props: { latestNews: [], latestBlogs: [] },
+      props: { latestNews: [], latestBlogs: [], latestent: [] },
       revalidate: 10,
     };
   }
 }
 
 // ==================== সিএসএস স্টাইল অবজেক্টস ====================
-
-// হিরো সেকশন স্টাইলিং
 const heroSectionStyle = {
   background: "linear-gradient(to bottom, #1e1b4b, #0f172a)",
   padding: "80px 0",
@@ -262,17 +319,6 @@ const heroSubTitleStyle = {
   lineHeight: "1.6",
 };
 
-const heroButtonStyle = {
-  padding: "12px 24px",
-  borderRadius: "8px",
-  fontSize: "15px",
-  fontWeight: "600",
-  textDecoration: "none",
-  color: "#fff",
-  transition: "opacity 0.2s",
-};
-
-// সেকশন হেডার
 const sectionHeaderStyle = {
   display: "flex",
   justifyContent: "space-between",
@@ -289,7 +335,6 @@ const viewAllButtonStyle = {
   fontWeight: "600",
 };
 
-// স্ক্রোল-এক্স কন্টেইনার
 const scrollContainerStyle = {
   display: "flex",
   gap: "20px",
@@ -318,5 +363,14 @@ const titleStyle = {
   fontWeight: "bold",
   lineHeight: "1.4",
   color: "#fff",
+  ...lineClampStyle,
+};
+
+// 🎯 বিনোদন টাইটেলের আলাদা কালার স্কিম (সবুজ থিম)
+const entTitleStyle = {
+  fontSize: "16px",
+  fontWeight: "bold",
+  lineHeight: "1.4",
+  color: "#4ade80",
   ...lineClampStyle,
 };

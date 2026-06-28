@@ -52,7 +52,6 @@ export default function EntMain({ allent }) {
             const displayTitle = item.title || "শিরোনামহীন";
             const displayDescription = item.description || "";
 
-            // HTML ট্যাগ রিমুভ করে শর্ট ডেসক্রিপশন তৈরি (যেমনটা নিউজ পেজে আছে)
             const pureText = displayDescription.replace(/<[^>]*>/g, "");
             const shortDescription =
               pureText.length > 160
